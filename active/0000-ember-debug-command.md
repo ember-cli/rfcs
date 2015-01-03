@@ -10,25 +10,25 @@ A new command **debug** to dump enough information about an ember-cli app to a f
 
 An issue in the ember-cli ecosystem might be because of multiple reasons,
 - Bower & npm dependencies used in the project
-- Incorrect brocfile setup
+- Incorrect Brocfile setup
 - Config is not right
 
 Its hard for someone to take enough information out of their app and create sample repos to reproduce these issues. Instead they would just run `ember debug`, look through the generated file to make sure nothing super secret is put in to it and submit this file along with their issue. Makes the life of contributors a little more easier since they’d have most of the details they need for initial investigation right there in the generated report.
 
 # Detailed design
 
-This is the bulk of the RFC. Explain the design in enough detail for somebody familiar
-with the tool to understand, and for somebody familiar with the implementation to implement.
-This should get into specifics and corner-cases, and include examples of how the feature is used.
-
-# Drawbacks
-
-Why should we *not* do this?
-
-# Alternatives
-
-What other designs have been considered? What is the impact of not doing this?
+`ember debug` would gather the following information
+	-	ember-cli version
+  - npm version
+	- node version
+	- OS
+	- bower dependencies 
+	- npm dependencies
+  - Brocfile.js
+	- config/environment.js
+	- Files counts in node_modues, vendor, bower_components, app
+	- Output of a command. i.e, sometimes running `ember build` might cause the issue so when running this command users could possibly pass an argument `—command=`(e.g. —command=debug) which we can run and include the output along with the report.
 
 # Unresolved questions
 
-What parts of the design are still TBD?
+
