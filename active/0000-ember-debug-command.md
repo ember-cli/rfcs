@@ -4,7 +4,7 @@
 
 # Summary
 
-A new command **debug** to dump enough information about an ember-cli app to a file that can be attached to issues.
+A new command `ember debug` to dump enough information about an ember-cli app to a report(file) that can be attached to issues.
 
 # Motivation
 
@@ -18,16 +18,16 @@ Its hard for someone to take enough information out of their app and create samp
 # Detailed design
 
 `ember debug` would gather the following information
-	-	ember-cli version
-  - npm version
-	- node version
-	- OS
-	- bower dependencies 
-	- npm dependencies
-  - Brocfile.js
-	- config/environment.js
-	- Files counts in node_modues, vendor, bower_components, app
-	- Output of a command. i.e, sometimes running `ember build` might cause the issue so when running this command users could possibly pass an argument `—command=`(e.g. —command=debug) which we can run and include the output along with the report.
+- ember-cli version
+- npm version
+- node version
+- OS
+- bower dependencies 
+- npm dependencies
+- Brocfile.js
+- config/environment.js
+- Files counts in node_modues, vendor, bower_components, app folders
+- Output of a command. i.e, sometimes running `ember build` might cause the issue, so when running this command users could possibly pass an argument `--command=`(e.g. --command=debug) which we can run and include the output along with the report.
 
 # Unresolved questions
 
