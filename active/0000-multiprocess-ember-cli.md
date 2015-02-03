@@ -17,6 +17,8 @@ We provide **serverMiddlware** hook to allow users to add their proxies to the E
 By making it easier to boot multiple processes, we can simplify ember-cli's internal implementation and give a happy path for users to boot their APIs in development.
 
 This refactoring also paves the way for us to simplify deploying to production applications that use Ember Fastboot. By allowing Ember Addons to provide information about processes, we'll be able to generate Profile and (with additional work) proxy configurations that would make deployment to container environments like Dokku & Docker a single step process.
+
+This also replaces the current hacky reloading stuff we do.
  
 # Detailed design
 
@@ -49,11 +51,12 @@ The processes will be automatically stoped when ember-cli is stopped.
 
 # Drawbacks
 
-I don't know.
+- complexity
+- cross platform process management (don't want orphans) *
 
 # Alternatives
 
-Please, suggest.
+From @stefanpenner: stricter internal concept for isolation, or exploration stuff in node 0.11.x and iojs .. I believe @domenic worked on something related, but i maybe be mistaken.
 
 # Unresolved questions
 
