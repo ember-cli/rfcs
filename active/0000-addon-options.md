@@ -20,6 +20,8 @@ This would also make addons much more powerful, since they can ask the user crit
 
 **TODO**
 
+Add a `prompts` hook for addons, which would utilize `ui.prompt` behind the scenes.
+
 One issues that prompts introduce is when you aren't interacting with your setup i.e. CI or testing, and also the possibility to overwhelm a user. Having a `--skip-prompts` option would mitigate issues like that, and prompts should have defaults, so skipping prompts would just do the default.
 
 # Drawbacks
