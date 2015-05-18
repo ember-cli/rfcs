@@ -38,12 +38,12 @@ The Builder is a re-thinking of the existing `EmberApp` constructor function tha
 - Merges an addon's app directory with the consuming app
 - Transpiles ES2015-modules code to AMD
 
-As part of the ES2015-modules transpilation we drop a `dep-graph.json` at the root of each tree. This is used by the Pre-Packager to resolve the graph. The result of this phase is an array of Broccoli trees containing all of the built assets in the app and addons.
+As part of the ES2015-modules transpilation we place a `dep-graph.json` at the root of each tree. This is used by the Pre-Packager to satisfy the graph. The result of this phase is an array of Broccoli trees containing all of the built assets in the app and addons.
 
-At this point nothing is really different then what happens today besides dropping the `dep-graph.json` and only running the addon hooks that need to happen at the beginning of a build.
+At this point nothing is really different then what happens today besides placing the `dep-graph.json` and only running the addon hooks that need to happen at the beginning of a build.
 
 ## Pre-Packager
-The Pre-Packager is a graph resolver algorithm for javascript dependencies. Another way of think about the Pre-Packager is a complex [Broccoli-Filter](https://github.com/broccolijs/broccoli-filter) and [Broccoli-Merge-Trees](https://github.com/broccolijs/broccoli-merge-trees).
+The Pre-Packager is a graph resolver algorithm for javascript dependencies. Another way of think about the Pre-Packager is a special purpose combination of [Broccoli-Filter](https://github.com/broccolijs/broccoli-filter) and [Broccoli-Merge-Trees](https://github.com/broccolijs/broccoli-merge-trees).
 
 The Pre-Packager can resolve the following types out of the box:
 
@@ -88,7 +88,7 @@ The dep-graph.json looks like the following.
       "ember-moment/helpers/duration",
       "ember"
     ],
-    "exports: [
+    "exports": [
       "default"
     ]
   },
