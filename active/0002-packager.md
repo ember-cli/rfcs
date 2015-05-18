@@ -4,26 +4,29 @@
 
 # Summary
 
-Allow Ember applications to resolve a dependency graph when packaging applications.
+When packaging Ember applications utilize the dependency graph to include only portions of the dep tree actually utilized. Additionally, hooks will be exposed to enable further innovation. HTTP2 packaging, custom bundles, multiple files etc.
 
 # Motivation
 
-Currently Ember CLI is not smart on how it packages up an application. It takes trees of various types, merges and concats them. While this is alright solution if your application is small it becomes problematic when the application becomes large enough that dependencies and code paths can no longer be reasoned about.
+The current app assembling strategy is naive as it merely merges and concats inputs trees in a nearly undocumented manner. Although this simplicity has served us well, it does limit flexibility of the build process. We believe we can further factor the build process in a way the improves the current À la carte strategy, while providing additional flexibitilty when desired.
 
 # Scope
 
-- Break the build up into 3 distinct phases
+- Break the build up into 3 distinct phases 
+  - build
+  - satisfy
+  - package
 - Traverse a dependency graph to gain selective builds
-- Provide a build solution for engines
-- Remove hard dependency on Bower in favor NPM
-- Remove app.import API
+- Lay the infrastructure for the build-side of engines
+- deprecate the hard dependency on Bower in favor NPM
+- deprecate app.import API
 
 # Definitions
 
 - __Builder__ - Responsible for generating an array of broccoli trees that contain the app and all the addons.
-- __Pre-Packager__ - Responsible for resolving and reducing the graph to a  tree containing only the modules in the graph.
-- __Packager__ - Responsible for taking the resolved tree and applying concatenation strategies on the tree.
-- __Entry__ - A entry node into the graph in which you traverse down from
+- __Pre-Packager__ - Responsible for resolving and reducing the graph to a tree containing only reachable modules.
+- __Packager__ - Responsible for taking the resolved tree and applying – default or user provided – concatenation strategies to the tree.
+- __Entry__ - A entry node into the graph in which you traverse down from. This can be an app or engine.
 
 # Detailed Design
 
@@ -33,9 +36,9 @@ The Builder is a re-thinking of the existing `EmberApp` constructor function tha
 - Discover the addons
 - Runs the addons hooks that are pre-resolved tree
 - Merges an addon's app directory with the consuming app
-- Transpiles ES6 code to AMD
+- Transpiles ES2015-modules code to AMD
 
-As part of the ES6 transpilation we drop a `dep-graph.json` into the tree of the app and each addon that supplies javascript dependencies. This is used by the Pre-Packager to resolve the graph. The result of this phase is an array of Broccoli trees containing all of the built assets in the app and addons.
+As part of the ES2015-modules transpilation we drop a `dep-graph.json` at the root of each tree. This is used by the Pre-Packager to resolve the graph. The result of this phase is an array of Broccoli trees containing all of the built assets in the app and addons.
 
 At this point nothing is really different then what happens today besides dropping the `dep-graph.json` and only running the addon hooks that need to happen at the beginning of a build.
 
@@ -44,9 +47,9 @@ The Pre-Packager is a graph resolver algorithm for javascript dependencies. Anot
 
 The Pre-Packager can resolve the following types out of the box:
 
-- Addons
+- `ember-addons`
 - Legacy modules from the node_modules directory (CJS)
-- ES6 from the node_modules directory
+- ES2015 modules from the node_modules directory
 
 While the Pre-packager comes with a sane set of defaults, custom dependency resolvers can be written to allow resolution of modules outside of node_modules.
 
@@ -72,6 +75,9 @@ The dep-graph.json looks like the following.
       "ember-resolver",
       "ember-load-initializers",
       "example-app/config/environment"
+    ],
+    "exports": [
+      "default"
     ]
   },
   "example-app/initializers/ember-moment.js": {
@@ -81,6 +87,9 @@ The dep-graph.json looks like the following.
       "ember-moment/helpers/ago",
       "ember-moment/helpers/duration",
       "ember"
+    ],
+    "exports: [
+      "default"
     ]
   },
   "example-app/router.js": {
@@ -88,6 +97,10 @@ The dep-graph.json looks like the following.
       "exports",
       "ember",
       "example-app/config/environment"
+    ],
+    "exports": [
+      "default",
+      "initialize"
     ]
   }
 }
@@ -95,7 +108,7 @@ The dep-graph.json looks like the following.
 
 ### Static Graph Resolution
 
-Apps and addon resolution uses the `dep-graph.json` to start the traversal. By default, the Pre-Packager uses the App as the entry into the graph, but developers can supply N entries. More on this later, but for now you should think of an entry is a large functional area of an application.
+App and addon resolution uses the `dep-graph.json` to start the traversal. By default, the Pre-Packager uses the App as the entry into the graph, but developers can supply N entries. More on this later, but for now you should think of an entry is a large functional area of an application (the admin section, the main app, etc).
 
 #### Syncing
 The first step in the resolution phase is to `syncForward` the entries files to what will be the output tree. Any non-javascript dependencies are synced forward as well.
@@ -110,17 +123,17 @@ The resolution algorithm is as follows:
 
 ### Post-Static Graph Resolution
 
-Legacy modules and ES6 code coming from node_modules must come after. This is because we do not have a static graph prior to resolution and we look at these dependencies as opaque. During the static resolution we keep track of the types we need to resolve later.  This is denoted by a prefix on the import. If you're familiar with WebPack, Browserify, or RequireJS this is a similar approach.
+Legacy modules (CJS) and non-ember-addon ES2015 code coming from node_modules must come after. This is because we do not have a static graph prior to resolution and we look at these dependencies as opaque. During the static resolution we keep track of the types we need to resolve later.  This is denoted by a prefix on the import. If you're familiar with WebPack, Browserify, or RequireJS this is a similar approach.
 
-To hint at the Pre-Packager to resolve a legacy commonjs module use `npm:`.
+To optionally hint at the Pre-Packager to resolve a legacy commonjs module use `npm:`, if the prefix is omitted the order a module will be choosen based on order of precedence.
 
 ```js
 import numeral from 'npm:numeral';
 ```
 
- When we attempt to resolve these types of dependencies we create an artificial "main" file containing the imports we saw and then just delegate to a tool that is designed to create bundles of these types.
+When we attempt to resolve these opaque types of dependencies we create an artificial "main" file containing the imports we saw and then just delegate to a tool that is designed to create bundles of these types.
 
-For instance, `npm:` uses Browserify to create bundles of CJS modules.  This type of resolution was first done by Edward Faulkner with [Ember Browserify](https://github.com/ef4/ember-browserify) and we feel it's the best way to bridge these types of gaps.
+For instance, `npm:` uses Browserify to create bundles of CJS modules. This type of resolution was first done by Edward Faulkner with [Ember Browserify](https://github.com/ef4/ember-browserify) and we feel it's the best way to bridge these types of gaps.
 
 ## Packager
 
