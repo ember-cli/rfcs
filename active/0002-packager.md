@@ -4,11 +4,11 @@
 
 # Summary
 
-When packaging Ember applications utilize the dependency graph to include only portions of the dep tree actually utilized. Additionally, hooks will be exposed to enable further innovation. HTTP2 packaging, custom bundles, multiple files etc.
+When packaging, Ember applications utilize the dependency graph to include only the portions of the depedency tree actually utilized. Additionally, hooks will be exposed to enable further innovation. HTTP2 packaging, custom bundles, multiple files etc.
 
 # Motivation
 
-The current app assembling strategy is naive as it merely merges and concats inputs trees in a nearly undocumented manner. Although this simplicity has served us well, it does limit flexibility of the build process. We believe we can further factor the build process in a way the improves the current À la carte strategy, while providing additional flexibitilty when desired.
+The current application assembling strategy is naive as it merely merges and concatenates input trees in a nearly undocumented manner. Although this simplicity has served us well, it does limit flexibility of the build process. We believe we can further factor the build process in a way the improves the current à la carte strategy, while providing additional flexibitilty when desired.
 
 # Scope
 
@@ -19,11 +19,11 @@ The current app assembling strategy is naive as it merely merges and concats inp
 - Traverse a dependency graph to gain selective builds
 - Lay the infrastructure for the build-side of engines
 - deprecate the hard dependency on Bower in favor NPM
-- deprecate app.import API
+- deprecate the app.import API
 
 # Definitions
 
-- __Builder__ - Responsible for generating an array of broccoli trees that contain the app and all the addons.
+- __Builder__ - Responsible for generating an array of Broccoli trees that contain the app and all the addons.
 - __Pre-Packager__ - Responsible for resolving and reducing the graph to a tree containing only reachable modules.
 - __Packager__ - Responsible for taking the resolved tree and applying – default or user provided – concatenation strategies to the tree.
 - __Entry__ - A entry node into the graph in which you traverse down from. This can be an app or engine.
@@ -40,10 +40,10 @@ The Builder is a re-thinking of the existing `EmberApp` constructor function tha
 
 As part of the ES2015-modules transpilation we place a `dep-graph.json` at the root of each tree. This is used by the Pre-Packager to satisfy the graph. The result of this phase is an array of Broccoli trees containing all of the built assets in the app and addons.
 
-At this point nothing is really different then what happens today besides placing the `dep-graph.json` and only running the addon hooks that need to happen at the beginning of a build.
+At this point nothing is really different than what happens today besides placing the `dep-graph.json` and only running the addon hooks that need to happen at the beginning of a build.
 
 ## Pre-Packager
-The Pre-Packager is a graph resolver algorithm for javascript dependencies. Another way of think about the Pre-Packager is a special purpose combination of [Broccoli-Filter](https://github.com/broccolijs/broccoli-filter) and [Broccoli-Merge-Trees](https://github.com/broccolijs/broccoli-merge-trees).
+The Pre-Packager is a graph resolver algorithm for javascript dependencies. Another way of thinking about the Pre-Packager is a special purpose combination of [Broccoli-Filter](https://github.com/broccolijs/broccoli-filter) and [Broccoli-Merge-Trees](https://github.com/broccolijs/broccoli-merge-trees).
 
 The Pre-Packager can resolve the following types out of the box:
 
@@ -51,14 +51,14 @@ The Pre-Packager can resolve the following types out of the box:
 - Legacy modules from the node_modules directory (CJS)
 - ES2015 modules from the node_modules directory
 
-While the Pre-packager comes with a sane set of defaults, custom dependency resolvers can be written to allow resolution of modules outside of node_modules.
+While the Pre-packager comes with a reasonable set of defaults, custom dependency resolvers can be written to allow resolution of modules outside of node_modules.
 
 ### Dependency Resolvers
 
 There are 2 types of dependency resolvers in the pre-packager.
 
-1. Resolvers that start traversal from a static graph
-2. Resolvers that must wait till the static graph has materialized
+1. Resolvers that start the traversal from a static graph
+2. Resolvers that must wait until the static graph has materialized
 
 Essentially anything that can provide a `dep-graph.json` prior to resolution falls into number 1 and everything else falls into number 2.
 
@@ -108,7 +108,7 @@ The dep-graph.json looks like the following.
 
 ### Static Graph Resolution
 
-App and addon resolution uses the `dep-graph.json` to start the traversal. By default, the Pre-Packager uses the App as the entry into the graph, but developers can supply N entries. More on this later, but for now you should think of an entry is a large functional area of an application (the admin section, the main app, etc).
+App and addon resolution uses the `dep-graph.json` to start the traversal. By default, the Pre-Packager uses the App as the entry into the graph, but developers can supply N entries. More on this later, but for now you should think of an entry as a large functional area of an application (the admin section, the main app, etc).
 
 #### Syncing
 The first step in the resolution phase is to `syncForward` the entries files to what will be the output tree. Any non-javascript dependencies are synced forward as well.
@@ -117,9 +117,9 @@ The first step in the resolution phase is to `syncForward` the entries files to 
 The resolution algorithm is as follows:
 
 1. Read in the `dep-graph.json` for an entry
-2. Look at the first file in the graph and `syncForward` it's imports
-3. Take the first import look up it's graph and recurse
-4. Recursion continues till the static graph is resolved
+2. Look at the first file in the graph and `syncForward` its imports
+3. Take the first import, look up its graph and recurse
+4. Recursion continues until the static graph is resolved
 
 ### Post-Static Graph Resolution
 
@@ -131,7 +131,7 @@ To optionally hint at the Pre-Packager to resolve a legacy commonjs module use `
 import numeral from 'npm:numeral';
 ```
 
-When we attempt to resolve these opaque types of dependencies we create an artificial "main" file containing the imports we saw and then just delegate to a tool that is designed to create bundles of these types.
+When we attempt to resolve these opaque types of dependencies, we create an artificial "main" file containing the imports we saw and then just delegate to a tool that is designed to create bundles of these types.
 
 For instance, `npm:` uses Browserify to create bundles of CJS modules. This type of resolution was first done by Edward Faulkner with [Ember Browserify](https://github.com/ef4/ember-browserify) and we feel it's the best way to bridge these types of gaps.
 
@@ -181,7 +181,7 @@ Since the graph has already been resolved you can provide an array of strategies
 - __custom__: If none of the out of the box steps work for you can tell the packager that you're are going to write your own concatenation logic.
 
 ### Custom Concatenation
-As part of the options you can set the `composeOutput` property to a function that will receive the tree and the resolved dependency graph. It's then up to you to preform the concatenation and return the the tree.
+As part of the options you can set the `composeOutput` property to a function that will receive the tree and the resolved dependency graph. It's then up to you to perform the concatenation and return the tree.
 
 ### Post Build Addon Hooks
 Once the tree has been concated, we then send that tree through the addon post-build hooks. This completes the the addon hook lifecycle.
@@ -190,7 +190,7 @@ Once the tree has been concated, we then send that tree through the addon post-b
 
 ## Ember CLI Developers
 
-We need to move all of the client dependencies that Ember CLI relies on to start publishing to npm as addons and are resolve their dependencies within node_modules as oppossed to bower_components. We will also need to rename some of the modules as they are at unreachable code paths e.g. `ember/resolver` does not actually resolve to the ember namespace.
+We need to move all of the client dependencies that Ember CLI relies on to start publishing to npm as addons and resolve their dependencies within node_modules as oppossed to bower_components. We will also need to rename some of the modules as they are at unreachable code paths e.g. `ember/resolver` does not actually resolve to the ember namespace.
 
 ## Apps
 
@@ -208,7 +208,7 @@ var packager = new Packager({
 });
 ```
 
-Since we are traversing a graph `app.import` for javascript dependencies should be removed.
+Since we are traversing a graph, `app.import` for javascript dependencies should be removed.
 
 ## Addons
 
@@ -218,7 +218,7 @@ During this process we have slightly tweaked the structure of the app and addon 
 For the app `pods` is now a directory and will get merged into the consumers namespace under `app/pods`.
 
 ### Addon Directory
-Instead of only having 1 namespace per addon we have changed the directory structure to allow for N namespaces from an addon. 
+Instead of only having 1 namespace per addon we have changed the directory structure to allow for N namespaces per addon. 
 
 The new directory structure looks like the following:
 
@@ -234,9 +234,9 @@ my-addon/
     my-addon.js
 ```
 
-We will add deprecation warns on this change to allow for addons to migrate before the Packager becomes the new default.
+We will add deprecation warnings for this change to allow for addons to migrate before the Packager becomes the new default.
 
-Since the Packager introduces the ability to do selective builds "main" files that re-export are an anti-pattern.
+Since the Packager introduces the ability to do selective builds, "main" files that re-export are an anti-pattern.
 
 # Other Fun Stuff
 
@@ -246,7 +246,7 @@ Other things that fall out of this work include:
 - Auto generate a [ServiceWorker](http://www.html5rocks.com/en/tutorials/service-worker/introduction/) for you
 - Auto generate [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) for Ember Data serialization
 
-These are out of the scope of this RFC, but there is now a path to them.
+These are out of the scope of this RFC, but there is now a path for them.
 
 # Alternatives
 
