@@ -4,7 +4,7 @@
 
 # Summary
 
-Provide both an `ember move` and an `ember rename` command for ember-cli, providing the ability to move/rename a file as well as update any references to it in a project. The move command will be lower level, with the rename command being more user friendly. The commands will intially be developed as an addon and can later be brought into ember-cli.
+Provide both an `ember move` and an `ember rename` command for ember-cli, providing the ability to move/rename a file as well as update any references to it in a project. The move command will be lower level, with the rename command being more user friendly. The commands will initially be developed as an addon and can later be brought into ember-cli.
 
 # Motivation
 
@@ -15,7 +15,9 @@ Renaming through ember-cli is currently not possible, so if you mistype or need 
 The `ember move` command and the `ember rename` commands will essentially do the same thing, with the difference being `ember rename` will be built on top of `ember move` and will take a blueprint as an argument (which it will use to help generate the paths passed to `ember move`). The rename command will also find all associated files that are generated with the defined blueprint and move them (and update path references in the project) as well.
 
 ## Command: ember move
-The `ember move` command will essentially be a proxy for `git mv`, falling back to `mv` (and `move` on Windows). It will be used by the `ember rename` command, as well as by future migration tools in ember-watson. The aim is to keep it as basic as possible to allow building upon it with other commands. The other part of `ember move` is updating any references to the source path inside a project. User prompting with diffs should be done with any change, bypassable with the `--force` option. If the file changes folder depth, any import statements with relative paths will also be updated.
+While the `ember move` command will essentially be a proxy for `git mv`, the more important role it will serve is updating any references to the source path inside a project. User prompting with diffs should be done with any change, bypassable with the `--force` option. If the file changes folder depth, any import statements with relative paths will also be updated.
+
+It will be used by the `ember rename` command, as well as by future migration tools in ember-watson. The aim is to keep it as basic as possible to allow building upon it with other commands.
 
 If the file is versioned, use `git mv` to keep the version history (check via `git ls-files --error-unmatch <file_name>; echo $?`). If not, use `mv` or `move`.
 
@@ -151,6 +153,8 @@ ember r component foo-bar bar-foo
 # Out of scope
 
 Renaming entire directories with `ember mv` would be a nice to have, specifically for the capability to update path references in a project. It will likely need to wait for a simpler, solid version of the command.
+
+To reduce scope we will likely require the project to be versioned and only use `git mv`. Instead of falling back to `mv` or `move`, we will throw a warning that git is required for the command. Eventually a fallback can be provided, but for the initial pass it will not.
 
 # Drawbacks
 
