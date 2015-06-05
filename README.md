@@ -96,4 +96,4 @@ We try to make sure that any RFC that we accept is accepted at the
 team meeting. Every accepted feature should have a core team champion,
 who will represent the feature and its progress.
 
-[Based on Ember RFC process](https://github.com/ember/rfcs)
+[Based on Ember RFC process](https://github.com/emberjs/rfcs)
