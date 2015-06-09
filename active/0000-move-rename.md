@@ -1,6 +1,6 @@
 - Start Date: 2015-06-04
-- RFC PR: 
-- ember-cli Issue: 
+- RFC PR:
+- ember-cli Issue:
 
 # Summary
 
@@ -9,6 +9,10 @@ Provide both an `ember move` and an `ember rename` command for ember-cli, provid
 # Motivation
 
 Renaming through ember-cli is currently not possible, so if you mistype or need to change a name, it must be done manually, tracking down all assets generated with a blueprint. Alternatively, you can use the `ember d` command, then regenerate with `ember g`, but this is not desirable when you've already got content in your generated file(s). Additionally, if you've already made references to the module you want to change (like a component for instance), you have to search and replace through your entire project to ensure you don't leave any orphaned references.
+
+The `ember mv` command will serve as a base for migration and refactoring tooling. Its primary concern is to reliably rename a module and update any references to that module in a project. From there we only need to determine the source and destination paths from any tooling built on top of it. For instance, an `ember podify` command would take a source path (or blueprint + module name), determine if the module can be converted to a pod, then generate a destination path in pod structure. With the source and destination paths, the podify command can call `ember mv` which will handle the moving of the file.
+
+This allows a clean separation of concerns, between the moving the file and updating references, and determining what should be moved and where it should be moved to.
 
 # Detailed design
 
@@ -65,7 +69,7 @@ ember mv ./foo.js bar.js
 // moving from relative path to root path
 ember mv foo-bar.js /app/components/bar/foo-bar.js
 ```
- 
+
 ### Process
 
 1. `ember mv <source> <dest> [options]...`
@@ -130,7 +134,7 @@ app
 ```
 ember r component foo-bar bar-foo
 ```
- 
+
 ### Process
 
 1. `ember r <blueprint> <source> <dest> [options]...`
@@ -140,7 +144,7 @@ ember r component foo-bar bar-foo
     * get fileInfos for any files that would be generated
     * construct paths for source and dest
   2. pre-verify:
-    * SOURCE path exists 
+    * SOURCE path exists
     * DEST path does not already exist
   4. beforeMove hook
   5. prompt user
@@ -149,7 +153,7 @@ ember r component foo-bar bar-foo
   2. loop through file list and run `ember mv <source> <dest> <options>`
 4. post-process:
   1. afterMove hook
-  
+
 # Out of scope
 
 Renaming entire directories with `ember mv` would be a nice to have, specifically for the capability to update path references in a project. It will likely need to wait for a simpler, solid version of the command.
@@ -159,6 +163,8 @@ To reduce scope we will likely require the project to be versioned and only use 
 # Drawbacks
 
 Because the mv command has a long established history, the limited functionality of this implementation could cause confusion for many users. There also may be many corner cases that won't immediately be covered by the command, possibly breaking apps, causing more issues than it solves. As long as the command leaves a trail and log of what it did, undoing any accidental changes should be managable.
+
+If the mv command is used to update several files in sequence, it will not be very efficient, as it will be repeating the same task several times without the ability to consolidate. However, performance is less of a concern in regard to migration/refactoring, as the user shouldn't need to do so frequently.
 
 # Alternatives
 
