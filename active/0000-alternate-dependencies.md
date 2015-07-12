@@ -4,7 +4,11 @@
 
 # Summary
 
-Allow ember-cli to target another package.json file when checking its dependency list. Normally for node projects you can symlink your local node_modules folder to another location. If ember-cli's local package.json dep list is different from what's installed in that "shared" node_module directory, it will throw an error and not build. This would allow app authors to point their devDependencies (and other keys as well, in theory) to package.json located elsewhere.
+Allow ember-cli to target another package.json file when checking its dependency list. 
+
+Normally for node projects you can symlink your local `node_modules` folder to another location. If an ember-cli project's local package.json `devDependencies` list is different from what's installed in that other `node_modules` directory, ember-cli will throw an error and not complete the command. 
+
+This would allow app authors to tell ember-cli to look elsewhere for its `devDependencies` key (and other keys as well, in theory).
 
 # Motivation
 
@@ -28,7 +32,9 @@ complicated-web-app/
     |__package.json
     |__node_modules/
 ```
-During ember-cli's intialization (before any commands are actually run), the instantiates a new Project object, which maintains a series of properties determined at runtime. One of those properites is `this.pkg`, which is the local package.json file's keys and values.
+During ember-cli's intialization (before any commands are actually run), a new `Project` object is instantiated. This object maintains a series of properties determined at runtime. One of those properites is `this.pkg`, which is the local package.json file's keys and values.
+
+`this.pkg.devDependencies` is set during initialization and used for various checks before any commands are run.
 
 This proposal would provide for a test at initialization time (`new Project()`) to look for a special key in the local package.json filed named `alternateKeys`.
 
