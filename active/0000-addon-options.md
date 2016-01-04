@@ -8,7 +8,7 @@ Enabling addons to specify custom prompts that would inquire the user, and perfo
 
 Similar to what Yeoman has:
 
-![from yeoman](http://yeoman.io/assets/img/codelab/image_8.5a17.png)
+![from yeoman](http://yeoman.io/static/image_4.d4f761cf89.png)
 
 # Motivation
 
