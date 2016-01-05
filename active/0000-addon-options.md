@@ -48,7 +48,7 @@ return this.ui.prompt([
 ]);
 ```
 
-This way the prompt can pull in default values or values specified via the CL, e.g. `--local`. Default values would be used if `--skip-prompts` is used.
+This way the prompt can pull in default values or values specified via the CL, e.g. `--local`. Default values would be used if `--skip-prompts` is used. Options defined in `availableOptions` can be used as default values in certain scenarios, like if the user didn't specify a `prompt.type`, then the argument `type` could be inferred from, e.g. `Boolean` => `'confirm'`. This could also go for reusing the description if one isn't provided in the prompt.
 
 As a fail safe, addon authors will have a warning or an error if there are no default values for their prompts. This ensures that addons can be used in tests and CI systems, as well as for user convenience.
 
