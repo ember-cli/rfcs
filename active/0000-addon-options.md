@@ -1,6 +1,6 @@
 - Start Date: 2015-03-24
-- RFC PR: 
-- ember-cli Issue: 
+- RFC PR:
+- ember-cli Issue:
 
 # Summary
 
@@ -18,11 +18,41 @@ This would also make addons much more powerful, since they can ask the user crit
 
 # Detailed design
 
-**TODO**
+Prompts are defined at the blueprint level, so you can create
+a prompt that runs during `ember install my-addon` or during the explicit `ember g my-blueprint`.
 
-Add a `prompts` hook for addons, which would utilize `ui.prompt` behind the scenes.
+Prompts are defined using `ui.prompt`, which pulls data from the blueprint's `availableOptions` if it has `argName` defined or there are options available. For example:
 
-One issues that prompts introduce is when you aren't interacting with your setup i.e. CI or testing, and also the possibility to overwhelm a user. Having a `--skip-prompts` option would mitigate issues like that, and prompts should have defaults, so skipping prompts would just do the default.
+```js
+availableOptions: [
+  name: 'local',
+  type: Boolean,
+  aliases: [ 'l' ],
+  default: false,
+  description: 'whether release commit and tags are locally or not (not pushed to a remote)',
+  validInConfig: true
+]
+```
+
+Which can be utilized by `ui.prompt` automatically as long as the author does something like:
+
+```js
+return this.ui.prompt([
+  {
+    name: 'useLocalGit',
+    type: 'confirm',
+    values: ...,
+    argName: 'local' // this maps to the option `name` above
+  }
+  // more prompts
+]);
+```
+
+This way the prompt can pull in default values or values specified via the CL, e.g. `--local`. Default values would be used if `--skip-prompts` is used.
+
+As a fail safe, addon authors will have a warning or an error if there are no default values for their prompts. This ensures that addons can be used in tests and CI systems, as well as for user convenience.
+
+Prompts can be specified in `beforeInstall`, `beforeUninstall`, `locals`, `afterInstall` and `afterUninstall`. It should always be used in the promise form, i.e. no callback.
 
 # Drawbacks
 
@@ -35,4 +65,4 @@ None.
 
 # Unresolved questions
 
-How to do this.
+* `ember install` can take a list of addons. This creates a problem of possible collisions for CL arguments mapping to prompts. Possible solution is to pass all args and hope for the best, or the alternative would be to allow for a prefix.
