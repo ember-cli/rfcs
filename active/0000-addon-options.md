@@ -54,6 +54,19 @@ As a fail safe, addon authors will have a warning or an error if there are no de
 
 Prompts can be specified in `beforeInstall`, `beforeUninstall`, `locals`, `afterInstall` and `afterUninstall`. It should always be used in the promise form, i.e. no callback.
 
+## Advanced
+
+For advanced use-cases the addon author can dig into the prompt results and tweak using the returned promise.
+
+```js
+return this.ui.prompt([
+  // prompts
+]).then(function (answers) {
+  // tweak the answers
+  return answers;
+})
+```
+
 # Drawbacks
 
 * More API surface area (more to test, and fix).
