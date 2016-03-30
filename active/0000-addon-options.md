@@ -75,3 +75,4 @@ None.
 # Unresolved questions
 
 * `ember install` can take a list of addons. This creates a problem of possible collisions for CL arguments mapping to prompts. Possible solution is to pass all args and hope for the best, or the alternative would be to allow for a prefix.
+* Do we need to allow calling prompts at different points in the lifecycle, e.g. `afterInstall`?
