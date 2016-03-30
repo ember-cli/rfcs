@@ -21,7 +21,8 @@ This would also make addons much more powerful, since they can ask the user crit
 Prompts are defined at the blueprint level, so you can create
 a prompt that runs during `ember install my-addon` or during the explicit `ember g my-blueprint`.
 
-Prompts are defined using `ui.prompt`, which pulls data from the blueprint's `availableOptions` if it has `argName` defined or there are options available. For example:
+Prompts are defined using an additional object defined on the objects in the `availableOptions` array. here are default values that map to the parent object's values, but everything can be overwritten to explicitly set or override
+the options defined by default.
 
 ```js
 availableOptions: [{
@@ -30,42 +31,37 @@ availableOptions: [{
   aliases: [ 'l' ],
   default: false,
   description: 'whether release commit and tags are locally or not (not pushed to a remote)',
-  validInConfig: true
+  validInConfig: true,
+  prompt: {
+    //name - defaults to camelized name above
+    //type - defaults to logical mapping from the same field above
+    //default - defaults to the value above
+    //message - defaults to the description above
+    //..any other options from inquirer.js
+  }
 }]
 ```
 
-Which can be utilized by `ui.prompt` automatically as long as the author does something like:
+A new CLI flag is going to be added, called `--skip-prompts` which basically doesn't run the prompts portion of the available options. This flag, along with the `this.ui.ci` are used to skip the prompts explicitly or implicitly if running the addon
+in a CI environment, like Travis. This allows for a graceful fallback, and also a way to not break user's tests or require
+user feedback for whatever reason, like during debugging.
+
+An addon developer doesn't need to define all of the inquirer.js prompt options, since we use some defaults
+from the parent attributes, like `name`, `description` and `type`. Although, we still allow for fine-grained configuration
+if the developer wants to override some option that doesn't match with their requirements. The default options look something like this:
 
 ```js
-return this.ui.prompt([
-  {
-    name: 'useLocalGit',
-    type: 'confirm',
-    values: ...,
-    argName: 'local' // this maps to the option `name` above
-  }
-  // more prompts
-]);
+{
+  name: inflection.camelize(item.name, true),
+  type: self._defaultPromptType(item),
+  message: item.description,
+  default: item.default
+}
 ```
 
-This way the prompt can pull in default values or values specified via the CL, e.g. `--local`. Default values would be used if `--skip-prompts` is used. Options defined in `availableOptions` can be used as default values in certain scenarios, like if the user didn't specify a `prompt.type`, then the argument `type` could be inferred from, e.g. `Boolean` => `'confirm'`. This could also go for reusing the description if one isn't provided in the prompt.
+The prompts are called automatically by Ember CLI just before the `locals` hook, and return the merged options
+as the argument to `locals`.
 
-As a fail safe, addon authors will have a warning or an error if there are no default values for their prompts. This ensures that addons can be used in tests and CI systems, as well as for user convenience.
-
-Prompts can be specified in `beforeInstall`, `beforeUninstall`, `locals`, `afterInstall` and `afterUninstall`. It should always be used in the promise form, i.e. no callback.
-
-## Advanced
-
-For advanced use-cases the addon author can dig into the prompt results and tweak using the returned promise.
-
-```js
-return this.ui.prompt([
-  // prompts
-]).then(function (answers) {
-  // tweak the answers
-  return answers;
-})
-```
 
 # Drawbacks
 
