@@ -24,14 +24,14 @@ a prompt that runs during `ember install my-addon` or during the explicit `ember
 Prompts are defined using `ui.prompt`, which pulls data from the blueprint's `availableOptions` if it has `argName` defined or there are options available. For example:
 
 ```js
-availableOptions: [
+availableOptions: [{
   name: 'local',
   type: Boolean,
   aliases: [ 'l' ],
   default: false,
   description: 'whether release commit and tags are locally or not (not pushed to a remote)',
   validInConfig: true
-]
+}]
 ```
 
 Which can be utilized by `ui.prompt` automatically as long as the author does something like:
