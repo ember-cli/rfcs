@@ -42,9 +42,7 @@ availableOptions: [{
 }]
 ```
 
-A new CLI flag is going to be added, called `--skip-prompts` which basically doesn't run the prompts portion of the available options. This flag, along with the `this.ui.ci` are used to skip the prompts explicitly or implicitly if running the addon
-in a CI environment, like Travis. This allows for a graceful fallback, and also a way to not break user's tests or require
-user feedback for whatever reason, like during debugging.
+A new CLI flag is going to be added, called `--skip-prompts` which basically doesn't run the prompts portion of the available options. This flag can be used to skip the prompts explicitly if running the addon in a CI environment, like Travis. This allows for a graceful fallback, and not breaking the user's tests or require user feedback for whatever reason, like during debugging.
 
 An addon developer doesn't need to define all of the inquirer.js prompt options, since we use some defaults
 from the parent attributes, like `name`, `description` and `type`. Although, we still allow for fine-grained configuration
