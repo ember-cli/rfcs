@@ -138,19 +138,19 @@ While developing several applications and addons, and during conversations with 
 
 
 Being Ember Forge designated means:
-    * Serves as an example of accepted best practices
-        * In architecture and philosphy
-            * For example, [10 Considerations When Developing Ember CLI Addons](http://notmessenger.com/considerations-when-developing-ember-cli-addons/)
-        * In coding
-        * In testing
-            * For example
-                * [Testing best practices](https://github.com/softlayer/ember-style-guide/blob/master/ember-testing.md)
-                * [No usage of global libraries in components](https://github.com/softlayer/sl-ember-test-helpers#global-libraries)
-        * In release management
-        * In repo management
-            * Roadmaps
-    * Follows a consistent approach to solving problems and applying patterns
-    * The removal of a single point of failure from an administration standpoint, so that the codebase is known to dependable
+* Serves as an example of accepted best practices
+    * In architecture and philosphy
+        * For example, [10 Considerations When Developing Ember CLI Addons](http://notmessenger.com/considerations-when-developing-ember-cli-addons/)
+    * In coding
+    * In testing
+        * For example
+            * [Testing best practices](https://github.com/softlayer/ember-style-guide/blob/master/ember-testing.md)
+            * [No usage of global libraries in components](https://github.com/softlayer/sl-ember-test-helpers#global-libraries)
+    * In release management
+    * In repo management
+        * Roadmaps
+* Follows a consistent approach to solving problems and applying patterns
+* The removal of a single point of failure from an administration standpoint, so that the codebase is known to dependable
 
 
 
