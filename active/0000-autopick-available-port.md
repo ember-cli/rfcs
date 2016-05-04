@@ -18,7 +18,7 @@ This RFC is a followup to [ember-cli/ember-cli#5703](https://github.com/ember-cl
 - In case the user tries to run `ember serve` on an app which is already running, we will use the port number saved in the file to let the user know the entire url where the app is already being served
 
 #### Picking a random port when the default is unavailable
-- If port `4200` is already being used, we can find the next available port. This will be similar to the live-reload-port's existing implementation.
+- If port `4200` is already being used, we can find an available port in the unassigned range of 49152–65535. This will be similar to the live-reload-port's existing implementation.
 - There will be an extra message printed before we print the url during initial build informing the user that the app was launched in a different port. This can even suggest the availability of the port option in the `.ember-cli` file or through the `--port` option.
 
 # Drawbacks
@@ -28,7 +28,3 @@ Users might not pay attention to the build output by default when they run `embe
 # Alternatives
 
 Users will have to figure out if another process is using the default port vs their ember app already running and proceed to work around it themselves. 
-
-# Unresolved questions
-
-In live reload's case incrementing by 1 doesn't matter as most users wont care which port live reload works out of. But if port `4200` is not available, what intervals do we use to pick the next available port? This might be important since we'd want the port number to be simple enough to remember. 
