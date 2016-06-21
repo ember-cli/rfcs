@@ -66,6 +66,15 @@ app.import('addons/ember-addon-2.js', { outputFile: 'assets/alternate-vendor.js'
 app.import('addons/ember-addon-n.js', { outputFile: 'assets/alternate-vendor.js'});
 ```
 
+## Trees
+
+A typical addon have different trees with JS that are relevant for this discussion. For a `app.import('addons/ember-lgtm', { outputFile: 'assets/vendor-deferred.js'});` we will do the following:
+
+* `app` will still be added to app.js
+* `test-support` will still be part of the app's test tree.
+* `addon` and `vendor` after this is implemented, it will be concatenated with other content in `vendor-deferred.js`. Note that an addon's `vendor` tree refers to `app.import`s done from the addon's `index.js`, not the `vendor` folder.
+
+
 # Drawbacks
 
 * Potential confusion about static and "addon" files. It isn't clear which ones are procesed and which ones are not.
