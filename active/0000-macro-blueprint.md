@@ -34,6 +34,39 @@ import myMacro from 'my-project/macros/my-macro';
 
 myValue: myMacro('key1', 'key2')
 ```
+We would also supply the accompanying unit test blueprint:
+
+``` js
+import <%= camelizedModuleName %> from '<%= dasherizedModulePrefix %>/macros/<%= dasherizedModuleName %>';
+import { module, test } from 'qunit';
+
+const MyType = Ember.Object.extend({
+  computedProperty: <%= camelizedModuleName %>(/* keys... */)
+});
+
+let myObj;
+
+module('<%= friendlyTestName %>', {
+  beforeEach() {
+    myObj = MyType.create({
+      // add any source data to feed your computed macro
+      // key1: 'value1'
+      // ...
+    });
+  }
+});
+
+// Replace this with your real tests.
+test('it works', function(assert) {
+  // you can also alter any source data per test
+  // myObj.set('key1', 'value2');
+  // ...
+  let result = myObj.get('computedProperty');
+  assert.ok(result);
+});
+```
+(I'm a little verbose in test setup and comments because I believe our current test blueprints are not verbose enough.)
+
 # Drawbacks
 
 The code to structure a computed macro is so simple, that it may be unnecessary to turn it into a blueprint. Although I would argue that beginners may not know how simple it is. It may seem like a daunting task to start making your own macros. This could help start them off.
