@@ -137,7 +137,7 @@ We can:
 1. search for `a/c.txt` in [tree1, tree2] (search right to left, like merge-trees)
 2. it isn't in tree2 at position `a/c.txt`, look back one
 3. it is in tree1 at position `a/c.txt`
-4. return tree1's `a/c.txt'
+4. return tree1's `a/c.txt`
 
 TODO: more indepth algorithim and examples
 TODO: think above and explore globbing across loadpaths
