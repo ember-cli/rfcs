@@ -62,15 +62,14 @@ can attach their own plugins.
 
 #### How can addons be in charge of their own transpilation and yet honor user preferences?
 
-Addons should receive a deep clone of the babel (or typscript) configuration defined in the host app,
-not the original config, so they can safely modify it without affecting the application.
-Each addon receives its own copy so they don't affect other addons either.
+Ember-cli should provide to each addon a deep clone of the configuration defined in the host app
+(by example available in `this.options.babel`), and that config is the one used to transpile the addon.
 
-`ember-cli-babel` will use that object as configuration so user's prerenced are honored unless
-the addon, very deliverately, chooses not to.
+The addon will therefore honor the app's configuration by default, but it can also decide to add
+custom plugins, enable specific features or just throw a warning message if the app's config
+doesn't have required specific transformation enabled.
 
-Making changes in the configuration be scoped to each addon might also avoid some cost where
-some plugin added by one addon is used to transpile code outside that addon.
+By modifying this clone, their changes will not affect the host app or other addons.
 
 # How We Teach This
 
@@ -88,9 +87,13 @@ up to them to give a good user experience.
 
 # Alternatives
 
-What other designs have been considered? What is the impact of not doing this?
+None that I can think of, beside of not doing this.
 
 # Unresolved questions
 
-Optional, but suggested for first drafts. What parts of the design are still
-TBD?
+For this approach it doesn't matter if the version of babel is 5 or 6, however the plugins and their
+names are funamentally incompatible.
+
+- Should addons that depend on `ember-cli-babel` be compiled with their version or with the app's version?
+- If the version of babel in the addon wins but the host apps uses babel6, the config cannot be shared. In
+  that case addons should get the default config?
