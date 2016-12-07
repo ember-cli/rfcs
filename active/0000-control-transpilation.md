@@ -1,4 +1,4 @@
-- Start Date: (fill me in with today's date, YYYY-MM-DD)
+- Start Date: 2016-12-07
 - RFC PR: (leave this empty)
 - Ember CLI Issue: (leave this empty)
 
