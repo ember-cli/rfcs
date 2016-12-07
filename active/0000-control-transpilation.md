@@ -4,46 +4,66 @@
 
 # Summary
 
-Allow consumer apps to control the transpilation not only of application code, but also
+
+Allow consumer apps to control the transpilation config not only of application code, but also
 of addon code.
 
 # Motivation
 
-At the moment addons control their own transpilation process. This is nice for having a
-"just works" experience, but leaves users without control over the transpiled code they
-ship.
+Ember-cli as allowed users to write ES6 code and transpile it to ES5/3 since almost the beginning
+of the project. It's one of those things that people take for granted.
 
-By example, users might want to opt-out from transpiling certain features because
-the application is going to be targeted to fully capable ES6 browsers is still shipping
-ES5 code of their addons, regardless of the babel settings of the app. This leads to
-bundles more verbose than really required.
+Today that is done through `ember-cli-babel`, an addon that is in the default blueprint and
+that the huge majority of apps use.
 
-The generator functions used by ember-concurrency is a good example of an utterly verbose
-transpiled code that users might not want.
+This transpilation process has some sensitive defaults that work for most people, but also allow
+some use configuration for, by example, disable some transformations enabled by default or enable
+some experimental ones.
 
-The goal of this RFC is to make EmberCLI honor the user's preferences for transpilation (through
-`ember-cli-babel` or perhaps `typescript`).
+What is less know is that this configuration only affects the application code. The transpilation
+of code living in addons is done according to the configuration of those addons. While there is
+use-cases for this, particularly addons that want to run their code though a custom babel plugin,
+generally speaking the desired transpiled output is something that the end-users should control.
+
+By example, applications that only target evergreen browsers may want to disable transpilation of
+all ES6 feature since moden browsers already ship them.
+
+This RFC wants to change this behaviour so addons by default honor the host app's preferences,
+while allowing those addons to run their own transformations.
 
 # Detailed design
 
-The proposed change in behaviour is to apply the user's preferences to the transpilation
-of the `addon` tree instead of the addon's configuration. The addon's configuration is
-honored by their dummy app only.
-For a overwhelming majority of the addons that just use the default settings they won't
-notice anything.
+The idea is to still allow addons to be in control of their own transpilation process, but
+make them honour uses preferenced by default.
 
-There might be a small number of addons that do customize the settings used by ember-cli-babel,
-and there is where some action is required.
+There is three different scenarios for addons:
 
-The suggested approach allow addons to access the babeljs configuration so, if they require
-an experimental feature enabled to work, they can throw a warning (or even a hard failure)
-if that feature is not enabled in the host's configuration.
+#### The addon doesn't care about the transpilation process.
+This is the most common common situation. Most addons are authored in ES6 and they don't
+mess with the host app's configuration.
+Those addons should just transpile their code user the host's apps settings.
 
-It would be a responsability of the addon to emit those warnings if needed, so ember-cli must provide
-an idiomatic way of accessing the application's configuration. At the moment it is possible
-but is somewhat hacky (`_findHost().options.babel`) and is likely going to change once
-Babel6 is used, which will probably use a `.babelrc` file for configuration instead of the
-current approach as options in the `ember-cli-build.js` file.
+#### Addons that require experimental features
+There is two options here. Either addons can unconditionally enable that feature only for their
+tree, or it's the user responsability to enable that feature in order to use the addon, with
+optionally the addon doing some feature detection to warn (not force) the user to enable that feature.
+
+By example, an addon that uses `async-await` which right now are only available in Chrome Canary
+could either use the host app's configuration plus this feature or it could just assume the user
+has enabled it and tell them to do so in the docs. Optionally the addon could do feature detection
+(easened by some utilities in `ember-cli-babel` that abstract presets and all that configuration)
+to show a warning in the console.
+
+I believe that the user should have the last word on this, and given the small amount of addons
+that actually do this seems that it's reasonable to update them to behave that way.
+
+#### Addons that add their custom babel plugins
+
+The number of addons that does this is even smaller, but one of them is nothing less than Ember Data,
+which uses a babel-plugin to strip Heimdall's instrumentation from production builds.
+
+Since addons remain in control of their transpilation and just reuse the app's configuration, addons
+can attach their own plugins.
 
 # How We Teach This
 
