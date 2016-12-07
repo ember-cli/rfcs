@@ -50,12 +50,7 @@ optionally the addon doing some feature detection to warn (not force) the user t
 
 By example, an addon that uses `async-await` which right now are only available in Chrome Canary
 could either use the host app's configuration plus this feature or it could just assume the user
-has enabled it and tell them to do so in the docs. Optionally the addon could do feature detection
-(easened by some utilities in `ember-cli-babel` that abstract presets and all that configuration)
-to show a warning in the console.
-
-I believe that the user should have the last word on this, and given the small amount of addons
-that actually do this seems that it's reasonable to update them to behave that way.
+has enabled it and tell them to do so in the docs.
 
 #### Addons that add their custom babel plugins
 
@@ -65,19 +60,25 @@ which uses a babel-plugin to strip Heimdall's instrumentation from production bu
 Since addons remain in control of their transpilation and just reuse the app's configuration, addons
 can attach their own plugins.
 
+#### How can addons be in charge of their own transpilation and yet honor user preferences?
+
+Addons should receive a deep clone of the babel (or typscript) configuration defined in the host app,
+not the original config, so they can safely modify it without affecting the application.
+Each addon receives its own copy so they don't affect other addons either.
+
+`ember-cli-babel` will use that object as configuration so user's prerenced are honored unless
+the addon, very deliverately, chooses not to.
+
+Making changes in the configuration be scoped to each addon might also avoid some cost where
+some plugin added by one addon is used to transpile code outside that addon.
+
 # How We Teach This
 
-For end users everything will remain the same.
-For most addon authors it will not require any change. Only those addons that do unusual
-things with babel, like [ember-computed-decorators](https://github.com/rwjblue/ember-computed-decorators/blob/master/ember-cli-build.js)
-may want to do something about it.
-If they don't do anything, things may or may not work depending on the user's settings,
-so it would be sensible for them to inspect the configuration and warn if neccesary.
+This has no impact for apps, just for addons.
 
-Checking if a feature is available is probably not trivial, so `ember-cli-babel` should
-expose some helpers that can be required from node-land to verify that the hosts app supports
-a given feature.
-This can also abstract babel5/6 complexities, presents and such.
+Most addons will not require any change. Only those that want to modify this the transpilation
+process like [ember-computed-decorators](https://github.com/rwjblue/ember-computed-decorators/blob/master/ember-cli-build.js)
+or ember data will have to be updated.
 
 # Drawbacks
 
