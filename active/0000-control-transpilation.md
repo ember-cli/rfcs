@@ -10,17 +10,17 @@ of addon code.
 
 # Motivation
 
-Ember-cli as allowed users to write ES6 code and transpile it to ES5/3 since almost the beginning
+Ember CLI has allowed users to write ES6 code and transpile it to ES5/3 since almost the beginning
 of the project. It's one of those things that people take for granted.
 
 Today that is done through `ember-cli-babel`, an addon that is in the default blueprint and
 that the huge majority of apps use.
 
-This transpilation process has some sensitive defaults that work for most people, but also allow
+This transpilation process has some sensible defaults that work for most people, but also allow
 some use configuration for, by example, disable some transformations enabled by default or enable
 some experimental ones.
 
-What is less know is that this configuration only affects the application code. The transpilation
+What is less known is that this configuration only affects the application code. The transpilation
 of code living in addons is done according to the configuration of those addons. While there is
 use-cases for this, particularly addons that want to run their code though a custom babel plugin,
 generally speaking the desired transpiled output is something that the end-users should control.
@@ -33,10 +33,10 @@ while allowing those addons to run their own transformations.
 
 # Detailed design
 
-The idea is to still allow addons to be in control of their own transpilation process, but
-make them honour uses preferenced by default.
+The idea is to still have addons control their own transpilation process, but
+make them honour user preferences by default.
 
-There is three different scenarios for addons:
+There are three different scenarios for addons:
 
 #### The addon doesn't care about the transpilation process.
 This is the most common common situation. Most addons are authored in ES6 and they don't
@@ -44,7 +44,7 @@ mess with the host app's configuration.
 Those addons should just transpile their code user the host's apps settings.
 
 #### Addons that require experimental features
-There is two options here. Either addons can unconditionally enable that feature only for their
+There are two options here. Either addons can unconditionally enable that feature only for their
 tree, or it's the user responsability to enable that feature in order to use the addon, with
 optionally the addon doing some feature detection to warn (not force) the user to enable that feature.
 
