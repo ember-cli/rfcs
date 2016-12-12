@@ -4,7 +4,7 @@
 
 # Summary
 
-Change how addon code is transpiled to it honors user preferences by default, but still
+Change how addon code is transpiled so it honors user preferences by default, but still
 allow addons to be in control of the transpilation if they need to.
 
 # Motivation
