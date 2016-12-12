@@ -4,9 +4,8 @@
 
 # Summary
 
-
-Allow consumer apps to control the transpilation config not only of application code, but also
-of addon code.
+Change how addon code is transpiled to it honors user preferences by default, but still
+allow addons to be in control of the transpilation if they need to.
 
 # Motivation
 
@@ -20,13 +19,25 @@ This transpilation process has some sensible defaults that work for most people,
 some use configuration for, by example, disable some transformations enabled by default or enable
 some experimental ones.
 
-What is less known is that this configuration only affects the application code. The transpilation
-of code living in addons is done according to the configuration of those addons. While there is
-use-cases for this, particularly addons that want to run their code though a custom babel plugin,
-generally speaking the desired transpiled output is something that the end-users should control.
+What is less known is that this configuration only affects the application code (the one in your app
+and the code in the `/app` folder of addons).
+The transpilation of code living in the `/addon` folder of addons is done according to the
+configuration of those addons, which is the default config of ember-cli-babel unless the addons specifies
+otherwise.
 
-By example, applications that only target evergreen browsers may want to disable transpilation of
-all ES6 feature since moden browsers already ship them.
+The reasoning behind that decission is that addons might have special needs so they have to be in
+charge their own transpilation. Some examples of addons that do that are [Ember-data](https://github.com/emberjs/data/blob/master/index.js#L115-L125),
+[smoke-and-mirrors](https://github.com/runspired/smoke-and-mirrors/blob/master/index.js#L27-L42).
+
+However, an undesired side effect of this approach is that, as it stands today, it means that
+the configuration of the user is ignored by addons. That means addons will still transpile features
+(p.e. generator functions) even if the users have disabled them in their apps because they targets
+only evergreen browsers.
+
+With ES6 being fully implemented in all modern browsers and many ES2016/ES2017 already starting to
+be appear, seems clear that the transpilation level of apps is a moving target and addons should
+obey user configuration by default, as opposed of the current approach of transpiling anything that
+is not ES5 despite of what the user wants.
 
 This RFC wants to change this behaviour so addons by default honor the host app's preferences,
 while allowing those addons to run their own transformations.
@@ -34,42 +45,22 @@ while allowing those addons to run their own transformations.
 # Detailed design
 
 The idea is to still have addons control their own transpilation process, but
-make them honour user preferences by default.
+make them honor the user's preferences by default.
 
-There are three different scenarios for addons:
+The implementation is relatively straigtforward. Every addon receives a deep clone of the application's
+configuration (available by example on `this.config.babel`), and `ember-cli-babel` must transpile
+the addon using those options, which happen to be the options used in the container app.
 
-#### The addon doesn't care about the transpilation process.
-This is the most common common situation. Most addons are authored in ES6 and they don't
-mess with the host app's configuration.
-Those addons should just transpile their code user the host's apps settings.
+Note that addons are still in control of the transpilation, they just happen to reuse the app's config
+unless the addon author decides otherwise.
 
-#### Addons that require experimental features
-There are two options here. Either addons can unconditionally enable that feature only for their
-tree, or it's the user responsability to enable that feature in order to use the addon, with
-optionally the addon doing some feature detection to warn (not force) the user to enable that feature.
+Addons that require custom plugins can still get the configuration and modify it, but since it is
+a deep clone of the app's configuration, they can be sure that any change they make will be scoped
+to that addon and will not affect other addons or the container app.
 
-By example, an addon that uses `async-await` which right now are only available in Chrome Canary
-could either use the host app's configuration plus this feature or it could just assume the user
-has enabled it and tell them to do so in the docs.
-
-#### Addons that add their custom babel plugins
-
-The number of addons that does this is even smaller, but one of them is nothing less than Ember Data,
-which uses a babel-plugin to strip Heimdall's instrumentation from production builds.
-
-Since addons remain in control of their transpilation and just reuse the app's configuration, addons
-can attach their own plugins.
-
-#### How can addons be in charge of their own transpilation and yet honor user preferences?
-
-Ember-cli should provide to each addon a deep clone of the configuration defined in the host app
-(by example available in `this.options.babel`), and that config is the one used to transpile the addon.
-
-The addon will therefore honor the app's configuration by default, but it can also decide to add
-custom plugins, enable specific features or just throw a warning message if the app's config
-doesn't have required specific transformation enabled.
-
-By modifying this clone, their changes will not affect the host app or other addons.
+Note that addon authors _could_ enable optional plugins, like per example [**decorators**](https://github.com/martndemus/ember-font-awesome/blob/master/index.js#L13-L20).
+However, since experimental features might become part of the ecmascript spec, this should be
+generally discouraged.
 
 # How We Teach This
 
@@ -81,9 +72,8 @@ or ember data will have to be updated.
 
 # Drawbacks
 
-We give the users more control over the transpilation process at the expenses of some complexity
-for addon authors that want to use experimental ES2017 features in their addons, leaving
-up to them to give a good user experience.
+Although this change *does not* require upgrading to BabelJS, it will be something to take into account
+by whatever transition happens last.
 
 # Alternatives
 
