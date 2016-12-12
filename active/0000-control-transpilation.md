@@ -16,7 +16,7 @@ Today that is done through `ember-cli-babel`, an addon that is in the default bl
 that the huge majority of apps use.
 
 This transpilation process has some sensible defaults that work for most people, but also allow
-some use configuration for, by example, disable some transformations enabled by default or enable
+some user configuration to, by example, disable some transformations enabled by default or enable
 some experimental ones.
 
 What is less known is that this configuration only affects the application code (the one in your app
