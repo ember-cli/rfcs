@@ -12,7 +12,7 @@ A large number of jquery plugins and other external libraries do not contain a  
 directly to the global scope (`window`). In order to use such a plugin in Ember, one has to write an addon. This
 can be a threshold for people. We should aim to make importing external libraries as easy as possible.
 
-With the anonymous AMD example and the [CommonJS loader support](https://github.com/ember-cli/ember-cli/pull/6812) big
+With the [anonymous AMD loader](https://github.com/ember-cli/ember-cli/pull/5976) and the [CommonJS loader support](https://github.com/ember-cli/ember-cli/pull/6812) big
 steps have already been taken. This proposal builds on those features.
 
 # Detailed design
