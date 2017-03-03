@@ -17,8 +17,8 @@ steps have already been taken. This proposal builds on those features.
 
 # Detailed design
 
-Libraries that are added to the global scope, require another wrapper to conform to the AMD module loader syntax. This
-wrapper should be fixes missing import and export statements.
+Libraries that are added to the global scope or have missing dependencies, require another wrapper to conform to the AMD
+module loader syntax. This wrapper should fix missing import and export statements.
 
 ## The wrapper
 A wrapper might look as follows.
