@@ -120,4 +120,4 @@ export default Ember.Service.extend({
 
 # Future
 
-Now that Ember is still concats javascript files, this RFC does not effect network performance now. However, if Ember decides to stop concattenating files (when HTTP 2 is available in every setup), this RFC could be emtremely useful to import only those modules that are needed.
+Now that Ember still concatenates javascript files, this RFC does not effect network performance now. However, if Ember decides to stop concatenating files (when HTTP 2 is available in every setup), this RFC could be extremely useful to import only those modules that are needed.
