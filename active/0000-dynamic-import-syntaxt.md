@@ -25,3 +25,47 @@ costs). The existing import syntax does not support such use cases.
 
 Once Ember CLI [supports Babel 6](https://github.com/ember-cli/ember-cli/issues/5015), it should be quite easy to
 implement this RFC By using the [Babel plugin to transpile `import()` to `require`](https://github.com/genkgo/babel-plugin-dynamic-import-amd).
+
+# Examples
+
+After merging this RFC, one can write the following code. The example highlights that which module to import is dependent on some data that is coming from the server.
+
+```js
+import Ember from 'ember';
+
+export default Ember.Service.extend({
+  someMethodOnThisService() {
+    return Ember.RSVP.Promise((resolve, reject) => {
+      fetch('/resource').then((data) => {
+        if (data.variable === 1) {
+          import('app/services/x').then(resolve, reject);
+        } else if (data.variable === 2) {
+          import('app/services/y').then(resolve, reject);
+        } else {
+          import(`app/services/service-${data.variable}`).then(resolve, reject);
+        }
+      });
+    });
+  }
+});
+```
+
+That same code will look as follows after transpiling, only the dynamic imports are updated.
+```js
+
+export default Ember.Service.extend({
+  someMethodOnThisService() {
+    return Ember.RSVP.Promise((resolve, reject) => {
+      fetch('/resource').then((data) => {
+        if (data.variable === 1) {
+          (new Promise(resolve => resolve(require(['app/services/x'])))).then(resolve, reject);
+        } else if (data.variable === 2) {
+          (new Promise(resolve => resolve(require(['app/services/y'])))).then(resolve, reject);
+        } else {
+          (new Promise(resolve => resolve(require([`app/services/service-${data.variable}`])))).then(resolve, reject);
+        }
+      });
+    });
+  }
+});
+```
