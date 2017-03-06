@@ -28,7 +28,9 @@ implement this RFC By using the [Babel plugin to transpile `import()` to `requir
 
 # Examples
 
-After merging this RFC, one can write the following code. The example highlights that which module to import is dependent on some data that is coming from the server.
+## Different import based on data from the server.
+
+This example highlights that which module to import is dependent on some data that is coming from the server.
 
 ```js
 import Ember from 'ember';
@@ -38,11 +40,11 @@ export default Ember.Service.extend({
     return Ember.RSVP.Promise((resolve, reject) => {
       fetch('/resource').then((data) => {
         if (data.variable === 1) {
-          import('app/services/x').then(resolve, reject);
+          import('app/services/x').then(service => resolve(service.default), reject);
         } else if (data.variable === 2) {
-          import('app/services/y').then(resolve, reject);
+          import('app/services/y').then(service => resolve(service.default), reject);
         } else {
-          import(`app/services/service-${data.variable}`).then(resolve, reject);
+          import(`app/services/service-${data.variable}`).then(service => resolve(service.default), reject);
         }
       });
     });
@@ -58,14 +60,64 @@ export default Ember.Service.extend({
     return Ember.RSVP.Promise((resolve, reject) => {
       fetch('/resource').then((data) => {
         if (data.variable === 1) {
-          (new Promise(resolve => resolve(require(['app/services/x'])))).then(resolve, reject);
+          (new Promise(resolve => resolve(require(['app/services/x'])))).then(service => resolve(service.default), reject);
         } else if (data.variable === 2) {
-          (new Promise(resolve => resolve(require(['app/services/y'])))).then(resolve, reject);
+          (new Promise(resolve => resolve(require(['app/services/y'])))).then(service => resolve(service.default), reject);
         } else {
-          (new Promise(resolve => resolve(require([`app/services/service-${data.variable}`])))).then(resolve, reject);
+          (new Promise(resolve => resolve(require([`app/services/service-${data.variable}`])))).then(service => resolve(service.default), reject);
         }
       });
     });
   }
 });
 ```
+
+## Using different services based the (mobile) operating systeem
+
+While there is already the concept of dependency injection in Ember, one cannot import different modules in `initializers` or `instance initalizer`. So one has to import all possible modules in an initializer. With `import()` one can decide at run-time which modules to import. 
+
+Now:
+```js
+import Cordova from 'app/services/systems/cordova';
+import Electron from 'app/services/systems/electron';
+import BrowserA from 'app/services/systems/browser-a';
+import BrowserB from 'app/services/systems/browser-b';
+
+let os = window.navigator.userAgent;
+if (os === 'cordova') {
+  application.register('service:operating-system', Cordova, {
+    singleton: true
+  });
+}
+if (os === 'electron') {
+  application.register('service:operating-system', Electron, {
+    singleton: true
+  });
+}
+// ... for every operating system an if statement
+
+application.inject('controller', 'opertingSystem', 'service:operating-system');
+```
+
+When this RFC is implemented, the programmer use a factory class.
+
+```js
+import Factory from 'app/services/systems/factory';
+
+application.register('service:operating-system', Factory, {
+  singleton: true
+});
+
+application.inject('controller', 'opertingSystem', 'service:operating-system');
+
+// app/services/systems/factory
+export default Ember.Service.extend({
+  factory() {
+    return import(`app/services/systems/${window.navigator.userAgent}`);
+  }
+});
+```
+
+# Future
+
+Now that Ember is still concats javascript files, this RFC does not effect network performance now. However, if Ember decides to stop concattenating files (when HTTP 2 is available in every setup), this RFC could be emtremely useful to import only those modules that are needed.
