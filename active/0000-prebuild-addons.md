@@ -1,5 +1,5 @@
 - Start Date: 2017-03-08
-- RFC PR: (leave this empty)
+- RFC PR: [#102](https://github.com/ember-cli/rfcs/pull/102)
 
 # Summary
 
