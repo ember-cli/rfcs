@@ -55,13 +55,19 @@ Pre-built asset bundles will be generated for Ember-CLI's default target as well
 
 During the build of consuming applications, if the target and environment information match one of the prebuilt asset bundles for a given addon, then those assets will be used by the build pipeline in place of the various `treeFor*` hooks that would normally execute for that addon.
 
-If a consumer wishes to build the addons from scratch with their application, they will be able to specify an `ignorePrebuiltAddons` flag in their `ember-cli-build.js`, like so:
+If a consumer wishes to build addons from scratch with their application, they will be able to specify a `prebuiltAddons` options hash in their `ember-cli-build.js`, like so:
 
 ```js
 const app = new EmberApp(defaults, {
-  ignorePrebuiltAddons: true
+  prebuiltAddons: {
+    'cool-addon': false
+  }
 });
 ```
+
+This hash defaults to `true` for all addons and allows you to turn it off for individual addons. If you want to disable all addons, you can specify: `'*': false`.
+
+If your application uses a non-default build target or environment, then the above hash will default `false` and you can opt-in to pre-builds by setting addons to `true`.
 
 # How We Teach This
 
@@ -92,4 +98,3 @@ To limit potential download and file system I/O costs, an alternative format for
 # Unresolved questions
 
 - Per-target installation of addons? Is it possible to publish multiple versions of addons with pre-built assets for different targets/environments? If so, this may fix the concerns over custom pre-builds.
-- For non-default targets, what happens? Are they opted out of all pre-building? Can they opt-in again if they know it is fine for their app?
