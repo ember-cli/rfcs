@@ -63,6 +63,9 @@ alternatives tend to be poorly-received**.
 * Submit a pull request. As a pull request the RFC will receive design
 feedback from the larger community, and the author should be prepared
 to revise it in response.
+* Find a champion on the [ember-cli core team](http://emberjs.com/team/). 
+Without a champion, the RFC will not progress. This champion will be assigned
+the RFC in question.
 * Build consensus and integrate feedback. RFCs that have broad support
 are much more likely to make progress than those that don't receive any
 comments.
