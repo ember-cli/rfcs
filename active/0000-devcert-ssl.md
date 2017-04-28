@@ -23,6 +23,20 @@ here. We would keep the existing command line flags as well, and simply tweak th
 behavior: if `--ssl` is provided without corresponding `--ssl-key` and `--ssl-cert`, then the
 CLI would invoke devcert to generate a certificate on the fly using the app name.
 
+A simplified example implementation:
+
+```js
+if (options.ssl) {
+  if (options.sslKey && options.sslCert) {
+    // this is the current functionality
+  } else {
+    getDevelopmentCertificates(appName, { installCertutil: true }).then((ssl) => {
+      https.createServer(ssl, handler);
+    });
+  }
+}
+```
+
 # How We Teach This
 
 Especially for frontend development, SSL in dev is typically motivated by wanting to unlock the
