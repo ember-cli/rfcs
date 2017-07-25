@@ -29,9 +29,9 @@ The following mechanism will be used to select the environment by each ember-cli
 2. ember-cli specific process environment variable specified environment (e.g. `EMBER_ENV=production ember serve`)
 3.  General purpose process environment variable specified environment (e.g. `NODE_ENV=production ember serve`)
 4. No environment was specified, default based on command type:
-	* Test commands -- Default to `test` environment.
-	* Interactive commands -- Default to `development` environment.
-	* Non-interactive commands -- Default to `production` environment.
+	1. Test commands -- Default to `test` environment.
+	2. Interactive commands -- Default to `development` environment.
+	3. Non-interactive commands -- Default to `production` environment.
 
 A pseudo-code based example:
 
