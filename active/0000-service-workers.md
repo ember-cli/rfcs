@@ -3,7 +3,7 @@
 
 # Add a Service Worker with minimal asset caching to a default Ember CLI application
 ## Summary
-This RFC introduces a Service Worker to the default app blueprint. It will only cache the most essential assets, such as `index.html`, and the vendor and app specific JS and CSS files.
+This RFC introduces a Service Worker to the default app blueprint. It will only cache the most essential assets, such as `index.html`, and the vendor and app specific JS and CSS files, it will only respond with those assets if getting the asset over the network fails.
 
 ## Motivation
 A Service Worker allows you to cache assets and other resources in a  way that loading a page becomes reliable and fast, independent of what the network conditions are.
@@ -23,20 +23,22 @@ The default Service Worker configuration should only cache the following files:
 * `assets/vendor.css`
 * `assets/<app-name>.css`
 
+These files are to be returned from the cache when loading them over the network fails.
+
 The cached `index.html` file should be served by the Service Worker whenever a `fetch` event happens that has the request mode of `navigation` and the `accept` header of the request has `text/html` as value.
 
 ### Service Worker invalidation
 By default each build should include a random sequence of text in the compiled output of `sw.js`, this way the Service Worker gets invalidated after every build.
 
-### Kill switch
-The build process should be able to take a flag that acts as a kill switch in case the Service Worker needs to be unregistered in the deployed environment as the result of a bad deploy.
+### Development mode
+In development mode the Service Worker script must verify if the current running server is the server of the project it belongs, if its not it should deregister itself.
 
-When this flag is given, the registration script for the Service Worker should be altered to immediately unregister the current registered Service Worker.
+If the Service Worker cannot reach the development server, because it is not running, a warning should be displayed.
 
 ## How we teach this
 The Ember CLI documentation should be updated with a notice that a default Ember CLI application registers a Service Worker and explain the functionality of said Service Worker.
 
-It should also include a warning that a Service Worker must be served over HTTPS and served from the same origin to function correctly.
+It should also include a warning that, when not developing on `http://localhost`, a Service Worker must be served over HTTPS and served from the same origin to function correctly.
 
 It might also be worth to add a few pointers on how to set up developer tools to improve the development experience with an active Service Worker.
 
@@ -45,4 +47,3 @@ The Service Worker adds a complex layer of caching that might trip up some devel
 
 ## Alternatives
 Instead of adding it by default, it could be added by a generator supplied by Ember CLI.
-
